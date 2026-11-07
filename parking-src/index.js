@@ -86,6 +86,20 @@ try {
         // ---------- часы ----------
         function sensor(id) { try { return hmSensor.createSensor(id); } catch (e) { return null; } }
         let ts = null, lastSec = -1, subMs = 0, fakeNow = 0;
+        // плавная фаза секундного такси: идёт по реальному времени и мягко подтягивается к часам, никогда не прыгает назад
+        let secPhase = -1, lastTickNow = 0;
+        function smoothSec(now) {
+            let dt = lastTickNow ? now - lastTickNow : STEP; lastTickNow = now;
+            if (!(dt > 0) || dt > 400) dt = STEP;
+            const target = ts.second * 1000 + subMs;
+            if (secPhase < 0) { secPhase = target; return secPhase; }
+            let err = target - secPhase;
+            if (err > 30000) err -= 60000; if (err < -30000) err += 60000;
+            if (Math.abs(err) > 2000) secPhase = target;
+            else secPhase += Math.max(0, dt + err * 0.03);
+            secPhase = (secPhase + 60000) % 60000;
+            return secPhase;
+        }
         function nowMs() {
             try { const n = Date.now(); if (typeof n === 'number' && n > 0) return n; } catch (e) {}
             return fakeNow;
@@ -300,14 +314,15 @@ try {
                 }
             }
             updateMen(now);
-            const sec = (ts.second * 1000 + subMs) / 60000, an = sec * 2 * Math.PI - Math.PI / 2;
+            const ph = smoothSec(now), an = ph / 60000 * 2 * Math.PI - Math.PI / 2;
             secDot.setProperty(hmUI.prop.MORE, { x: Math.round(C + Math.cos(an) * 220) - 64, y: Math.round(C + Math.sin(an) * 220) - 64, w: 128, h: 128,
                 pos_x: 0, pos_y: 28, center_x: 64, center_y: 64, angle: deg(an + Math.PI / 2), src: 'sec_car.png' });
-            const on = Math.floor((ts.second * 1000 + subMs) / 500) % 2;
+            const on = Math.floor(ph / 500) % 2;
             if (on !== pOn) { pOn = on; for (let k = 0; k < pSigns.length; k++) pSigns[k].setProperty(hmUI.prop.SRC, on ? 'p_off.png' : 'p_on.png'); }
         }
         function snap() {
             if (!ts) return;
+            secPhase = -1; lastTickNow = 0;
             finishAll(); clearMen();
             const ds = curDigits();
             if (ds.join('') !== shown.join('')) placeAll(ds);
