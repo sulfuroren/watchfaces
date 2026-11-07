@@ -44,7 +44,7 @@ if extra == 'idle':
     put('man_0_0.png', 127, 120, 90, 32, (0, 0))
     put('man_2_1.png', 339, 330, -90, 32, (0, 0))
 for y in VY: put('p_on.png', C, y, 0, 20, (0, 0))
-a = math.radians(42 * 6 - 90); put('sec_car.png', C + math.cos(a) * 221, C + math.sin(a) * 221, math.degrees(a) + 90, 64, (0, 0))
+a = math.radians(42 * 6 - 90); put('sec_car.png', C + math.cos(a) * 220, C + math.sin(a) * 220, math.degrees(a) + 90, 128, (0, 28))
 if extra == 'idle':
     put('car_1_fwd.png', 127, 120, -90, 128, (0, 28))
 d = ImageDraw.Draw(img)

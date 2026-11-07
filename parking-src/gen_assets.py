@@ -78,8 +78,8 @@ class Canvas:
 def car(color, st):
     # изображение 128x72, центр машины в (64,36), нос смотрит вправо (+x)
     c = Canvas(128, 72, 64, 36)
-    if st == 'fwd': c.cone(16, 64, 9, 32, 1.1)
-    if st == 'idle': c.cone(16, 46, 8, 18, 0.6)
+    if st == 'fwd': c.cone(16, 64, 9, 32, 0.75)
+    if st == 'idle': c.cone(16, 46, 8, 18, 0.4)
     sh = c.rrect(-19, -6.5, 21, 11.5, 6, (0, 0, 0, 135), lay=c.layer())
     c.comp(sh.filter(ImageFilter.GaussianBlur(K * 1.2)))
     body = c.rrect(-20, -9, 20, 9, 6, hexc(color), lay=c.layer())
@@ -143,12 +143,8 @@ def sign(on):
 
 
 def sec_car():
-    # маленькое такси для секунд: 64x64, центр машины в центре картинки
-    big = car('#f2c230', 'fwd')
-    sm = big.resize((round(128 * .6), round(72 * .6)), Image.LANCZOS)
-    tile = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    tile.alpha_composite(sm, (round(32 - 64 * .6), round(32 - 36 * .6)))
-    return tile
+    # такси для секунд — того же размера, что остальные машины (128x72, центр в (64,36))
+    return car('#f2c230', 'fwd')
 
 
 def dot():
@@ -166,9 +162,9 @@ def background():
     vig = 1.0 + 0.05 * np.clip(1 - r / 120, 0, 1) - 0.32 * np.clip((r - 120) / 113, 0, 1) ** 1.6
     base *= vig[..., None]
     # кольцевая дорога для секундной машинки
-    band = np.clip(1 - np.abs(r - 221) / 8, 0, 1) ** .5 * 6
+    band = np.clip(1 - np.abs(r - 220) / 12, 0, 1) ** .5 * 6
     ang = np.arctan2(ys - 233, xs - 233)
-    dash = ((np.floor((ang + np.pi) / (2 * np.pi) * 90) % 2) == 0) & (np.abs(r - 221) < .7)
+    dash = ((np.floor((ang + np.pi) / (2 * np.pi) * 90) % 2) == 0) & (np.abs(r - 220) < .7)
     base += band[..., None]
     base[dash] += 18
     base[r > 233.5] = 0

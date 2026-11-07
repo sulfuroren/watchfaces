@@ -301,8 +301,8 @@ try {
             }
             updateMen(now);
             const sec = (ts.second * 1000 + subMs) / 60000, an = sec * 2 * Math.PI - Math.PI / 2;
-            secDot.setProperty(hmUI.prop.MORE, { x: Math.round(C + Math.cos(an) * 221) - 32, y: Math.round(C + Math.sin(an) * 221) - 32, w: 64, h: 64,
-                pos_x: 0, pos_y: 0, center_x: 32, center_y: 32, angle: deg(an + Math.PI / 2), src: 'sec_car.png' });
+            secDot.setProperty(hmUI.prop.MORE, { x: Math.round(C + Math.cos(an) * 220) - 64, y: Math.round(C + Math.sin(an) * 220) - 64, w: 128, h: 128,
+                pos_x: 0, pos_y: 28, center_x: 64, center_y: 64, angle: deg(an + Math.PI / 2), src: 'sec_car.png' });
             const on = Math.floor((ts.second * 1000 + subMs) / 500) % 2;
             if (on !== pOn) { pOn = on; for (let k = 0; k < pSigns.length; k++) pSigns[k].setProperty(hmUI.prop.SRC, on ? 'p_off.png' : 'p_on.png'); }
         }
@@ -346,7 +346,7 @@ try {
                     w.setProperty(hmUI.prop.VISIBLE, false);
                     men.push({ w: w, on: false, vis: false, key: '' });
                 }
-                secDot = hmUI.createWidget(hmUI.widget.IMG, { x: C - 32, y: -20, w: 64, h: 64, pos_x: 0, pos_y: 0, center_x: 32, center_y: 32,
+                secDot = hmUI.createWidget(hmUI.widget.IMG, { x: C - 64, y: -51, w: 128, h: 128, pos_x: 0, pos_y: 28, center_x: 64, center_y: 64,
                     angle: 90, src: 'sec_car.png', show_level: NL });
                 // касание двоеточия — машины съезжаются заново
                 hmUI.createWidget(hmUI.widget.BUTTON, { x: C - 30, y: 170, w: 60, h: 126, text: '',
