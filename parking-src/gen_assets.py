@@ -78,8 +78,6 @@ class Canvas:
 def car(color, st):
     # изображение 128x72, центр машины в (64,36), нос смотрит вправо (+x)
     c = Canvas(128, 72, 64, 36)
-    if st == 'fwd': c.cone(16, 64, 9, 32, 0.75)
-    if st == 'idle': c.cone(16, 46, 8, 18, 0.4)
     sh = c.rrect(-19, -6.5, 21, 11.5, 6, (0, 0, 0, 135), lay=c.layer())
     c.comp(sh.filter(ImageFilter.GaussianBlur(K * 1.2)))
     body = c.rrect(-20, -9, 20, 9, 6, hexc(color), lay=c.layer())
