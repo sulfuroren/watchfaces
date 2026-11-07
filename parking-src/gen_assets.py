@@ -58,24 +58,28 @@ class Canvas:
         self.comp(L)
 
     def cone(self, x0, x1, w0, w1, alpha, rgb=(255, 244, 205)):
+        # рассеянный свет фар: без жёстких краёв, мягко гаснет вдаль и к бокам
         H, W = self.img.size[1], self.img.size[0]
         ys, xs = np.mgrid[0:H, 0:W]
         lx = xs / K - self.cx; ly = ys / K - self.cy
         t = (lx - x0) / (x1 - x0)
-        inside = (t >= 0) & (t <= 1) & (np.abs(ly) <= w0 + (w1 - w0) * np.clip(t, 0, 1))
-        a = np.where(inside, alpha * (1 - np.clip(t, 0, 1)) * 255, 0).astype(np.uint8)
+        tc = np.clip(t, 0, 1)
+        width = w0 + (w1 - w0) * tc
+        lat = np.exp(-1.3 * (ly / width) ** 2)
+        lon = np.where((t >= 0) & (t <= 1), np.clip(t * 6, 0, 1) * (1 - tc) ** 1.1, 0)
+        a = np.clip(alpha * 255 * lat * lon, 0, 255).astype(np.uint8)
         arr = np.zeros((H, W, 4), np.uint8); arr[..., 0], arr[..., 1], arr[..., 2] = rgb; arr[..., 3] = a
-        self.comp(Image.fromarray(arr, 'RGBA').filter(ImageFilter.GaussianBlur(K * 1.5)))
+        self.comp(Image.fromarray(arr, 'RGBA').filter(ImageFilter.GaussianBlur(K * 3)))
 
     def done(self):
         return self.img.resize((self.w, self.h), Image.LANCZOS)
 
 
 def car(color, st):
-    # изображение 128x48, центр машины в (64,24), нос смотрит вправо (+x)
-    c = Canvas(128, 48, 64, 24)
-    if st == 'fwd': c.cone(19, 62, 7, 17, 0.32)
-    if st == 'idle': c.cone(19, 40, 7, 12, 0.18)
+    # изображение 128x72, центр машины в (64,36), нос смотрит вправо (+x)
+    c = Canvas(128, 72, 64, 36)
+    if st == 'fwd': c.cone(16, 64, 9, 32, 1.1)
+    if st == 'idle': c.cone(16, 46, 8, 18, 0.6)
     sh = c.rrect(-19, -6.5, 21, 11.5, 6, (0, 0, 0, 135), lay=c.layer())
     c.comp(sh.filter(ImageFilter.GaussianBlur(K * 1.2)))
     body = c.rrect(-20, -9, 20, 9, 6, hexc(color), lay=c.layer())
@@ -138,6 +142,15 @@ def sign(on):
     return c.done()
 
 
+def sec_car():
+    # маленькое такси для секунд: 64x64, центр машины в центре картинки
+    big = car('#f2c230', 'fwd')
+    sm = big.resize((round(128 * .6), round(72 * .6)), Image.LANCZOS)
+    tile = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    tile.alpha_composite(sm, (round(32 - 64 * .6), round(32 - 36 * .6)))
+    return tile
+
+
 def dot():
     c = Canvas(10, 10, 5, 5); c.ellipse(0, 0, 3.4, 3.4, hexc('#f2c230')); return c.done()
 
@@ -152,8 +165,12 @@ def background():
     ys, xs = np.mgrid[0:S, 0:S]; r = np.hypot(xs - 233, ys - 233)
     vig = 1.0 + 0.05 * np.clip(1 - r / 120, 0, 1) - 0.32 * np.clip((r - 120) / 113, 0, 1) ** 1.6
     base *= vig[..., None]
-    ring = np.exp(-((r - 228) ** 2) / 2.0) * 16
-    base += ring[..., None]
+    # кольцевая дорога для секундной машинки
+    band = np.clip(1 - np.abs(r - 221) / 8, 0, 1) ** .5 * 6
+    ang = np.arctan2(ys - 233, xs - 233)
+    dash = ((np.floor((ang + np.pi) / (2 * np.pi) * 90) % 2) == 0) & (np.abs(r - 221) < .7)
+    base += band[..., None]
+    base[dash] += 18
     base[r > 233.5] = 0
     return Image.fromarray(np.clip(base, 0, 255).astype(np.uint8), 'RGB')
 
@@ -168,6 +185,6 @@ if __name__ == '__main__':
     aod_car().save(f'{OUT}/aod_car.png', optimize=True)
     sign(True).save(f'{OUT}/p_on.png', optimize=True)
     sign(False).save(f'{OUT}/p_off.png', optimize=True)
-    dot().save(f'{OUT}/sec_dot.png', optimize=True)
+    sec_car().save(f'{OUT}/sec_car.png', optimize=True)
     background().save(f'{OUT}/bg.png', optimize=True)
     print('ok', len(os.listdir(OUT)))

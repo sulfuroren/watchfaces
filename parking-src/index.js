@@ -114,7 +114,7 @@ try {
             const src = 'car_' + sl.col + '_' + st + '.png', X = Math.round(x) - 64, Y = Math.round(y) - 64, a = deg(r);
             const key = X + ',' + Y + ',' + a + ',' + src;
             if (key === sl.key) return; sl.key = key;
-            sl.w.setProperty(hmUI.prop.MORE, { x: X, y: Y, w: 128, h: 128, pos_x: 0, pos_y: 40, center_x: 64, center_y: 64, angle: a, src: src });
+            sl.w.setProperty(hmUI.prop.MORE, { x: X, y: Y, w: 128, h: 128, pos_x: 0, pos_y: 28, center_x: 64, center_y: 64, angle: a, src: src });
         }
         function park(sl, st) { carPut(sl, sl.i.x, sl.i.y, sl.hp, st || 'park'); carShow(sl, true); }
         function rcol() { return Math.floor(Math.random() * NCOL); }
@@ -301,7 +301,8 @@ try {
             }
             updateMen(now);
             const sec = (ts.second * 1000 + subMs) / 60000, an = sec * 2 * Math.PI - Math.PI / 2;
-            secDot.setProperty(hmUI.prop.MORE, { x: Math.round(C + Math.cos(an) * 228) - 5, y: Math.round(C + Math.sin(an) * 228) - 5, w: 10, h: 10, src: 'sec_dot.png' });
+            secDot.setProperty(hmUI.prop.MORE, { x: Math.round(C + Math.cos(an) * 221) - 32, y: Math.round(C + Math.sin(an) * 221) - 32, w: 64, h: 64,
+                pos_x: 0, pos_y: 0, center_x: 32, center_y: 32, angle: deg(an + Math.PI / 2), src: 'sec_car.png' });
             const on = Math.floor((ts.second * 1000 + subMs) / 500) % 2;
             if (on !== pOn) { pOn = on; for (let k = 0; k < pSigns.length; k++) pSigns[k].setProperty(hmUI.prop.SRC, on ? 'p_off.png' : 'p_on.png'); }
         }
@@ -334,7 +335,7 @@ try {
                 for (let d = 0; d < 4; d++) for (let k = 0; k < 7; k++) {
                     const s = ORDER[k], i = segInfo(d, s), hp = parkedH(d, i);
                     const w = hmUI.createWidget(hmUI.widget.IMG, { x: Math.round(i.x) - 64, y: Math.round(i.y) - 64, w: 128, h: 128,
-                        pos_x: 0, pos_y: 40, center_x: 64, center_y: 64, angle: deg(hp), src: 'car_0_park.png', show_level: NL });
+                        pos_x: 0, pos_y: 28, center_x: 64, center_y: 64, angle: deg(hp), src: 'car_0_park.png', show_level: NL });
                     w.setProperty(hmUI.prop.VISIBLE, false);
                     slots.push({ d: d, s: s, i: i, hp: hp, w: w, vis: false, key: '', col: 0, present: false, anim: null,
                         ready: false, coming: false, readyAt: 0, doorUntil: 0 });
@@ -345,7 +346,8 @@ try {
                     w.setProperty(hmUI.prop.VISIBLE, false);
                     men.push({ w: w, on: false, vis: false, key: '' });
                 }
-                secDot = hmUI.createWidget(hmUI.widget.IMG, { x: C - 5, y: 0, w: 10, h: 10, src: 'sec_dot.png', show_level: NL });
+                secDot = hmUI.createWidget(hmUI.widget.IMG, { x: C - 32, y: -20, w: 64, h: 64, pos_x: 0, pos_y: 0, center_x: 32, center_y: 32,
+                    angle: 90, src: 'sec_car.png', show_level: NL });
                 // касание двоеточия — машины съезжаются заново
                 hmUI.createWidget(hmUI.widget.BUTTON, { x: C - 30, y: 170, w: 60, h: 126, text: '',
                     normal_src: 'transparent.png', press_src: 'transparent.png', show_level: NL, click_func: replay });

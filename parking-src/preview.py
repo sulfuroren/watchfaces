@@ -39,12 +39,14 @@ for d, v in enumerate(digits):
     for s in SEGS[v]:
         i = info(d, s)
         st = 'idle' if (extra == 'idle' and k % 5 == 2) else 'park'
-        put(f'car_{k % 4}_{st}.png', i[1], i[2], heading(d, i), 128, (0, 40)); k += 1
+        put(f'car_{k % 4}_{st}.png', i[1], i[2], heading(d, i), 128, (0, 28)); k += 1
 if extra == 'idle':
     put('man_0_0.png', 127, 120, 90, 32, (0, 0))
     put('man_2_1.png', 339, 330, -90, 32, (0, 0))
 for y in VY: put('p_on.png', C, y, 0, 20, (0, 0))
-a = math.radians(42 * 6 - 90); put('sec_dot.png', C + math.cos(a) * 228, C + math.sin(a) * 228, 0, 10, (0, 0))
+a = math.radians(42 * 6 - 90); put('sec_car.png', C + math.cos(a) * 221, C + math.sin(a) * 221, math.degrees(a) + 90, 64, (0, 0))
+if extra == 'idle':
+    put('car_1_fwd.png', 127, 120, -90, 128, (0, 28))
 d = ImageDraw.Draw(img)
 f = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 21)
 d.text((C, 118), 'ВС · 08', font=f, fill=(233, 231, 225), anchor='mm')
